@@ -4,5 +4,5 @@ const router = Router();
 
 
 router.get("/getComment",commentController.getComment);
-router.delete("/deleteComment",commentController.deleteComment);
+router.delete("/deleteComment/:id",commentController.deleteComment);
 export default router;

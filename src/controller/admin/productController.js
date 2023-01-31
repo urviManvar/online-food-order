@@ -1,34 +1,34 @@
 import productModel from "../../model/admin/productModel.js";
-import {uploadFile,fileUpload} from "../../until/upload.js";
+import {uploadFile} from "../../until/upload.js";
 export class productController{
 
-    // static addProduct = async (req, res) => {
-    //     try {
-    //         const { name,quantity, categoryId, price, stoke } = req.body;
-    //         const foundItem = await productModel.findOne({ name });
-    //         if (foundItem) return res.send({ massage: "Product Already Exist" });
-    //         if (!req.files) return res.send({ massage: "Please Provide Image" });
+    static addProduct = async (req, res) => {
+        try {
+            const { name,quantity, categoryId, price, stoke } = req.body;
+            const foundItem = await productModel.findOne({ name });
+            if (foundItem) return res.send({ massage: "Product Already Exist" });
+            if (!req.files) return res.send({ massage: "Please Provide Image" });
         
-    //         if (!name || !categoryId || !price || !stoke || !quantity)
-    //           return res.send({ massage: "Please Provide Product Details" });
-    //         const item = new productModel({
-    //           name,
-    //           categoryId,
-    //           price,
-    //           stoke,
-    //           quantity
-    //         });
-    //         const file = uploadFile(item._id, req.files.image);
-    //         item.image = file;
-    //         const productData = await item.save();
-    //         return res.status(200).send({
-    //           success: true,
-    //           massage: "Product Added Successfully",
-    //         });
-    //       } catch (error) {
-    //         res.status({ success: false, message: error.message });
-    //       }
-    //     };
+            if (!name || !categoryId || !price || !stoke || !quantity)
+              return res.send({ massage: "Please Provide Product Details" });
+            const item = new productModel({
+              name,
+              categoryId,
+              price,
+              stoke,
+              quantity
+            });
+            const file = uploadFile(item._id, req.files.image);
+            item.image = file;
+            const productData = await item.save();
+            return res.status(200).send({
+              success: true,
+              massage: "Product Added Successfully",
+            });
+          } catch (error) {
+            res.status({ success: false, message: error.message });
+          }
+        };
        
         // static getProduct = async (req, res) => {
         //     try {
@@ -73,29 +73,29 @@ export class productController{
             }
         }
 
-        static addProduct = async (req, res) => {
+        // static addProduct = async (req, res) => {
 
-          try {
-            const { name, categoryId, price, stoke } = req.body;
+        //   try {
+        //     const { name, categoryId, price, stoke } = req.body;
             
-           let data = await uploadFile(req)
-           const item = new productModel({
-            name,
-            categoryId,
-            price,
-            stoke,
-            image:data
-          });
+        //    let data = await uploadFile(req)
+        //    const item = new productModel({
+        //     name,
+        //     categoryId,
+        //     price,
+        //     stoke,
+        //     image:data
+        //   });
         
       
-            const productData = await item.save();
-            return res.status(200).send({
-              success: true,
-              massage: "Product Added Successfully",
-            });
-          } catch (error) {
-            res.status(400).send({ success: false, message: error.message });
-          }
-        };
+        //     const productData = await item.save();
+        //     return res.status(200).send({
+        //       success: true,
+        //       massage: "Product Added Successfully",
+        //     });
+        //   } catch (error) {
+        //     res.status(400).send({ success: false, message: error.message });
+        //   }
+        // };
 
      }

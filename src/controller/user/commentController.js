@@ -22,7 +22,8 @@ export class commentController {
         static updateComment= async (req, res) => {
             try {
             const {comment}  = req.body
-                 const data = await commentModel.create({
+                 const data = await commentModel.findOneAndUpdate({
+
                     comment:comment
                     
                  })

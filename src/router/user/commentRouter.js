@@ -4,6 +4,6 @@ const router = Router();
 
 
 router.post("/addComment",commentController.addComment);
-router.put("/updateComment",commentController.updateComment);
+router.put("/updateComment/:id",commentController.updateComment);
 
 export default router;

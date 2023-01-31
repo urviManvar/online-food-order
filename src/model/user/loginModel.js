@@ -16,9 +16,6 @@ const userSchema = new Schema({
     type: Number,
     require: true,
   },
-  userFeedback: {
-    type: String,
-    require: true,
-  },
+ 
 });
 export const userModel = model("user", userSchema);

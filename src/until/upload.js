@@ -39,13 +39,6 @@ import { Console } from "console";
 
 
 
-// s3 backet
-const s3 = new AWS.S3({
-  accessKeyId: "AKIASCX6OE3GUTBEUOWZ",
-  secretAccessKey: "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",
-  httpOptions: {timeout: 30000, connectTimeout: 5000},
-
-});
 
 
 const  uploadFile = async (req) => {
