@@ -1,24 +1,35 @@
 import { userModel } from "../../model/user/loginModel.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 
 export class classController {
   //addUser
   static addUser = async (req, res) => {
-    //console.log ('req.body',req.body)
-    const body = req.body;
-    try {
-      console.log(body);
-      const data = await userModel.create(body);
-      console.log(data);
-      if (data) res.status(200).send({ message: "user Successfully Added" });
-      else
-        return res.status(400).send({ message: "Add user Error In Database" });
-    } catch (error) {
-      return res.status(500).send({ message: error.message });
-    }
-  };
-  //getUser
-  static getUser = async (req, res) => {
+      const { userName, userMobile, userEmail, userPassword } = req.body;
+      try {   
+       const data = await userModel.create({
+          userName: userName,
+          userMobile: userMobile,
+          userEmail: userEmail,
+          userPassword: userPassword
+        });
+        const salt = await bcrypt.genSalt(10);
+        data.userPassword = await bcrypt.hash(data.userPassword, salt);
+        await data.save();
+
+        if (data) res.status(200).send({ message: "user  Successfully signup" });
+        else
+          return res.status(400).send({ message: "Add user Error In Database" });
+      } catch (error) {
+        console.log("error:>>>", error);
+        return res.status(500).send({ message: "Internal Server Error" });
+      }
+    };
+
+
+    //get user
+ static getUser = async (req, res) => {
     const body = req.body;
     try {
       const data = await userModel.find();
@@ -63,6 +74,27 @@ export class classController {
   //   }
   // };
 
+  //sign up
+  static sign_up = async (req, res) => {
+    try {
+        const user = new userModel({
+            userName: req.body.userName,
+            userMobile: req.body.userMobile,
+            userEmail: req.body.userEmail,
+            userPassword: req.body.userPassword,
+        })
+        const salt = await bcrypt.genSalt(10);
+        user.userPassword = await bcrypt.hash(user.userPassword, salt);
+        await user.save();
+        const userData = await user.save();
+        console.log('userData :>> ', userData);
+        return res.status(200).send("data saved successfully");
+    } catch (error) {
+        console.log('error :>> ', error);
+    }
+}
+
+
   //loginUser
   static loginUser = async (req, res) => {
     try {
@@ -70,28 +102,26 @@ export class classController {
       if (!userEmail || !userPassword)
         return res.send({ message: "something went wrong" });
       const data = await userModel.findOne({ userEmail });
-      console.log("data :>> ", data);
-      if (!data) return res.send({ message: "user not found" });
-      if (data && data.userPassword == userPassword) {
+      const isMatch = await bcrypt.compare(
+        String(userPassword),
+        data.userPassword
+      );
+      console.log("isMatch",isMatch)
+      if(!isMatch) {
+        return res.send("wrong password");
+      }
         const accessToken = jwt.sign(
           { _id: data._id },
           process.env.JWT_TOKEN_KEY,
           { expiresIn: "6d" }
         );
-        const userData = {
-          id: data._id,
-          userName: data.userName,
-          token: accessToken,
-        };
         return res.send({
           success: true,
           message: "login successfully",
-          data: userData,
+          token:accessToken,
         });
-      }
-      return res.send({ message: "incorrect password" });
     } catch (error) {
       res.send({ success: false, message: error.message });
     }
   };
-}
+};
