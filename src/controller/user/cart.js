@@ -2,7 +2,7 @@ import { cartModel } from "../../model/user/cart.js";
 import { userModel } from "../../model/user/loginModel.js";
 import productModel from "../../model/admin/productModel.js";
 import mongoose from "mongoose";
-
+const ObjectId = mongoose.Types.ObjectId;
 export class cartController {
   static addToCart = async (req, res) => {
     try {
@@ -24,6 +24,7 @@ export class cartController {
       console.log("availableCart1 :>> ", availableCart);
       if (availableCart) {
         console.log("availableCart if in :>> ");
+
         const product = await productModel.findOne({
           isDeleted: false,
           _id: mongoose.Types.ObjectId(productId),
@@ -65,7 +66,6 @@ export class cartController {
       console.log("error :>> ", error);
     }
   };
-
 
   //list data
 
@@ -110,6 +110,77 @@ export class cartController {
       console.log("cartData :>> ", cartData);
 
       return res.status(200).send({ cartData });
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  //updateCart
+  static updateCart = async (req, res) => {
+    try {
+      console.log("this is update product");
+      const product = await cartModel.findOne({
+        isDeleted: false,
+        _id: req.params.id,
+      });
+      if (!product) {
+        return await res.status(402).send("product not found");
+      }
+      console.log("product :>> ", product);
+
+      product.userId = req.body.userId;
+      product.productId = req.body.productId;
+      product.amount = req.body.amount;
+
+      const productData = await product.save();
+      console.log("productData :>> ", productData);
+
+      return res.status(200).send("data updated successfully");
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  //deleteCart
+  static deleteCart = async (req, res) => {
+    let id = req.params.id;
+    try {
+      let response = await cartModel.findOneAndDelete({ _id: id });
+      if (response) {
+        return res.status(200).send({ message: "Delete Successfully " });
+      }
+      return res
+        .status(404)
+        .send({ message: "Delete With The Specified Id Does Not Exists" });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  };
+
+  //deleteInCart
+  static deleteInCart = async (req, res) => {
+    console.log("hi :>> ");
+    try {
+      const findCart = await cartModel.findOne({ _id: req.params.id });
+      const productId = await productModel.findOne({ _id: req.body.productId });
+      console.log("productId :>> ", productId);
+      console.log(" findCart:>> ", findCart);
+      if (findCart.productId.includes(req.body.productId)) {
+        const index = findCart.productId.indexOf(ObjectId(productId));
+        console.log("index :>> ", index);
+        if (index !== -1) {
+          findCart.productId.splice(index, 1);
+        }
+      } else {
+        throw new Error("product not found");
+      }
+      let cartUp = await cartModel.findOneAndUpdate(
+        { _id: req.params.id },
+        findCart
+      );
+      if (!cartUp) throw new Error("not found");
+      res.send({ success: "true" });
+      console.log("cartUp :>> ", cartUp);
     } catch (error) {
       console.log("error :>> ", error);
     }
